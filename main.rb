@@ -46,19 +46,50 @@ module Enumerable
     end
   end
 
-  def my_all?
-    self.my_each do |item|
-      if yield(item) == false then return false end
+  def my_all?(type = nil)
+    if block_given?
+      self.my_each do |item|
+        if yield(item) == false then return false end
+      end
+      return true
+    else
+      if type == nil
+        self.my_each do |item| 
+          if item == nil or false 
+            return false end
+        end
+        return true
+      else
+        self.my_each do |item|
+          if item.class != type && item.class.superclass != type
+            return false end
+        end
+        return true 
+      end 
     end
-    return true
   end
 
-  def my_any?
-    self.my_each do |item|
-      if yield(item) == true then return true end
+  def my_any?(type = nil)
+    if block_given?
+      self.my_each do |item|
+        if yield(item) == true then return true end
+      end
+      return false
+    else
+      if type == nil
+        self.my_each do |item| 
+          if item != nil or false 
+            return true end
+        end
+        return false
+      else
+        self.my_each do |item|
+          if item.class == type or item.class.superclass == type
+            return true end
+        end
+        return false 
+      end 
     end
-    return false
   end
 
 end
- 
