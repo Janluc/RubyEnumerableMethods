@@ -92,4 +92,34 @@ module Enumerable
     end
   end
 
+  def my_none?(type = nil)
+    if block_given?
+      self.my_each do |item|
+        if yield(item) == true then return false end
+      end
+      return true
+    else
+      if type == nil
+        self.my_each do |item| 
+          if item != nil && item != false 
+            return false end
+        end
+        return true
+      else
+        self.my_each do |item|
+          if item.class == type or item.class.superclass == type
+            return false end
+        end
+        return true 
+      end 
+    end
+  end
+
+
+  def my_count(num = nil)
+    if block_given?
+
+    end
+  end
+
 end
