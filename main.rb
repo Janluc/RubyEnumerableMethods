@@ -2,8 +2,8 @@ module Enumerable
 
   def my_each
     counter = 0
-    while counter < self.length do
-      if self.class == Hash
+    while counter < self.size do
+      if self.class == Hash || self.class == Range
           convertedHash = self.to_a
           yield(convertedHash[counter])
           counter += 1
@@ -16,8 +16,8 @@ module Enumerable
 
   def my_each_with_index
     counter = 0
-    while counter < self.length do 
-      if self.class == Hash
+    while counter < self.size do 
+      if self.class == Hash || self.class == Range
           convertedHash = self.to_a
           yield(convertedHash[counter], counter)
           counter += 1
@@ -29,18 +29,16 @@ module Enumerable
   end
 
   def my_select
-    if self.class == Hash
+    if self.class == Hash 
       newHash = {}
       self.my_each do |key, value|
-        yield(key, value)
-        newHash[key] = value
+       if yield(key, value) then newHash[key] = value end
       end
       return newHash
-    elsif self.class == Array
+    else
       newArr = []
       self.my_each do |item|
-        yield(item)
-        newArr.push(item)
+        if yield(item) then newArr.push(item) end
       end
       return newArr
     end
@@ -61,7 +59,7 @@ module Enumerable
         return true
       else
         self.my_each do |item|
-          if item.class != type && item.class.superclass != type
+          if item.class != type && item.class.superclass != type 
             return false end
         end
         return true 
@@ -107,7 +105,7 @@ module Enumerable
         return true
       else
         self.my_each do |item|
-          if item.class == type or item.class.superclass == type
+          if item.class == type or item.class.superclass == type or item.is_a? type
             return false end
         end
         return true 
@@ -142,21 +140,31 @@ module Enumerable
     tempArr = []
     self.my_each do |item|
       unless yield(item) == false
-        tempArr.push(item)
+        tempArr.push(yield(item))
       end
     end
     return tempArr
   end
 
-  def my_inject(accum = nil)
+  def my_inject(accum = nil, sym = nil)
+    num = nil
     self.my_each do |item|
-      accum = accum.nil? ? item : yield(accum, item)
+      if block_given?
+        accum = accum.nil? ? item : yield(accum, item)
+      else
+        if accum.is_a? Numeric
+          accum = accum.send(sym, item)
+        elsif accum.is_a? Symbol
+          num = num.nil? ? item : num.send(accum, item)
+        end
+      end
     end
-    accum
+    unless num != nil then return accum else return num end
   end
 
 end
 
-  def multiply_els(arr)
-    return arr.my_inject {|multiply, item| multiply * item }
-  end
+def multiply_els(arr)
+  return arr.my_inject {|multiply, item| multiply * item }
+end
+
