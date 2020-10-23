@@ -117,9 +117,46 @@ module Enumerable
 
 
   def my_count(num = nil)
+    counter = 0 
     if block_given?
-
+      self.my_each do |item|
+        if yield(item) == true then counter += 1 end
+      end
+      return counter
+    else
+      if num == nil
+        self.my_each do |item| 
+          counter += 1 
+        end
+        return counter
+      else
+        self.my_each do |item|
+          if item == num then counter += 1 end
+        end
+        return counter
+      end
     end
   end
 
+  def my_map
+    tempArr = []
+    self.my_each do |item|
+      unless yield(item) == false
+        tempArr.push(item)
+      end
+    end
+    return tempArr
+  end
+
+  def my_inject(accum = nil)
+    self.my_each do |item|
+      accum = accum.nil? ? item : yield(accum, item)
+    end
+    accum
+  end
+
 end
+
+  def multiply_els(arr)
+    return arr.my_inject {|multiply, item| multiply * item }
+  end
